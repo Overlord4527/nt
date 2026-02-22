@@ -1,0 +1,128 @@
+import time
+import random
+
+class Knight:
+    def __init__(self, name, armor, sword_type):
+        self.name = name
+        self.armor = armor  # Прочность брони
+        self.stamina = 100
+        self.sword_type = sword_type # Например, "Двуручный" или "Святой"
+        self.is_alive = True
+
+    def status(self):
+        return f"⚔️ {self.name} | Доспех: {self.armor} | Выносливость: {self.stamina}"
+
+    def rest(self):
+        print(f"💤 {self.name} точит {self.sword_type} меч и отдыхает.")
+        self.stamina = min(100, self.stamina + 30)
+        self.armor = min(100, self.armor + 5)
+
+class Horse:
+    def __init__(self, name, speed, endurance):
+        self.name = name
+        self.speed = speed
+        self.endurance = endurance
+        self.max_endurance = endurance
+
+    def status(self):
+        return f"🐎 Конь {self.name} | Скорость: {self.speed} | Бодрость: {self.endurance}"
+
+class Dragon:
+    def __init__(self, fire_power, scales_strength, health):
+        self.fire_power = fire_power
+        self.scales_strength = scales_strength
+        self.health = health
+
+    def status(self):
+        return f"🐲 Дракон | Огонь: {self.fire_power} | Чешуя: {self.scales_strength} | HP: {self.health}"
+
+# --- Инициализация объектов ---
+sir_galat = Knight("Галахад", 80, "Пламенный")
+roach = Horse("Плотва", 15, 60)
+dragon = Dragon(fire_power=50, scales_strength=70, health=200)
+
+day = 1
+distance_to_dragon = 100  # Дистанция до логова
+
+print("🐲 СИМУЛЯТОР ПОХОДА НА ДРАКОНА ЗАПУЩЕН 🐲")
+
+while sir_galat.is_alive and dragon.health > 0:
+    print(f"\n=== ДЕНЬ {day} | До логова: {distance_to_dragon} км ===")
+    print(sir_galat.status())
+    print(roach.status())
+    print(dragon.status())
+    
+    print("\nВаш выбор:")
+    print("1. Скакать во весь опор (-30 выносливости коня, -20 км)")
+    print("2. Тренировка с мечом (+сила атаки, -20 выносливости)")
+    print("3. Дать коню отдохнуть и поесть (+ бодрость)")
+    print("4. Изучить слабости дракона (-чешуя дракона, -стамина)")
+    print("5. НАПАСТЬ НА ДРАКОНА (доступно, если дистанция 0)")
+    print("0. Сдаться и уйти в таверну")
+
+    choice = input("Действие: ")
+
+    if choice == "1":
+        if roach.endurance >= 30:
+            move = roach.speed + random.randint(5, 10)
+            distance_to_dragon = max(0, distance_to_dragon - move)
+            roach.endurance -= 30
+            print(f" Вы проскакали {move} км!")
+        else:
+            print("🐎 Конь слишком устал, он просто бредет шагом.")
+            distance_to_dragon = max(0, distance_to_dragon - 2)
+
+    elif choice == "2":
+        sir_galat.stamina -= 20
+        sir_galat.armor = min(100, sir_galat.armor + 10)
+        print(f"⚔️ {sir_galat.name} тренирует удары. Защита усилена!")
+
+    elif choice == "3":
+        roach.endurance = min(roach.max_endurance, roach.endurance + 40)
+        print(" Плотва довольна и полна сил.")
+
+    elif choice == "4":
+        if sir_galat.stamina >= 30:
+            reduction = random.randint(10, 20)
+            dragon.scales_strength -= reduction
+            sir_galat.stamina -= 30
+            print(f"📖 Вы нашли брешь в чешуе! Защита дракона упала на {reduction}")
+        else:
+            print("😴 Слишком хочется спать, чтобы читать свитки.")
+
+    elif choice == "5":
+        if distance_to_dragon > 0:
+            print("🚫 Дракон еще слишком далеко!")
+        else:
+            print("\n🔥 ФИНАЛЬНАЯ БИТВА! 🔥")
+            # Простой расчет урона
+            knight_dmg = random.randint(30, 60) + (100 - dragon.scales_strength)
+            dragon_dmg = dragon.fire_power - (sir_galat.armor // 2)
+            
+            dragon.health -= knight_dmg
+            sir_galat.armor -= dragon_dmg
+            
+            print(f"💥 Вы нанесли {knight_dmg} урона!")
+            print(f"🔥 Дракон дохнул огнем на {dragon_dmg} урона!")
+            
+            if sir_galat.armor <= 0:
+                sir_galat.is_alive = False
+                print("💀 Доспехи расплавились... Рыцарь пал.")
+            if dragon.health <= 0:
+                print("🏆 Дракон повержен! Слава герою!")
+                break
+
+    elif choice == "0":
+        print("🍻 Вы решили, что принцесса того не стоит, и ушли в таверну.")
+        break
+
+    # Конец дня
+    time.sleep(0.5)
+    sir_galat.stamina = max(0, sir_galat.stamina - 10)
+    if sir_galat.stamina <= 0:
+        print("🚑 Рыцарь упал от изнеможения!")
+        sir_galat.is_alive = False
+    
+    day += 1
+
+print("\n--- КОНЕЦ ИСТОРИИ ---")
